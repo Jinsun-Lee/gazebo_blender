@@ -87,6 +87,7 @@ class ExtractInfoNode(Node):
     self.subscription = self.create_subscription(Image, self.sub_topic, self.image_callback, image_qos_profile)
 
     self.publisher_ = self.create_publisher(LaneInfo, self.pub_topic , self.que)
+    self.timer = self.create_timer(self.timer_period, self.timer_callback)
 
   def image_callback(self, data):
     self.is_running = True
@@ -100,6 +101,10 @@ class ExtractInfoNode(Node):
     lane.target_y = round(road_target_point_y)
     
     self.publisher_.publish(lane)
+
+  def timer_callback(self):
+    if not self.is_running:
+      self.get_logger().info('Not published yet: "%s"' % self.sub_topic)
       
 def main(args=None):
     rclpy.init(args=args)
